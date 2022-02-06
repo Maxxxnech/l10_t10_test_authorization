@@ -15,11 +15,7 @@ export function loadIssues(cbk) {
  //** ?state=all - затягиваем открытые и закрыте issues
  //** */ cache: "no-store" - не кешируем, иначе будет лагать
   fetch(myUrl + '?state=all', {
-    cache: "no-store",
-    headers: {
-        "Content-Type": "application/json",
-        ...auth,
-      }, 
+    cache: "no-store"
   })
     .then((result) => result.json())
     .then((data) => {
