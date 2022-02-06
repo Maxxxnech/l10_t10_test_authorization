@@ -54,7 +54,7 @@ export function updateIssues(state, issue_number, cbk) {
       //async data update
       if(cbk) {
         clearTimeout(myTimeout);
-        myTimeout = setTimeout(()=>cbk(data), 3000);
+        myTimeout = setTimeout(()=>cbk(data), 1000);
       }
     });
 }
