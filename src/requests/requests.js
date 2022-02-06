@@ -5,11 +5,12 @@ const repo = "l10_t10_test_authorization";
 const myUrl = `https://api.github.com/repos/${owner}/${repo}/issues`;
 
 // GitHub Personal access token for open repos, создан 24-фев-2020
-const password = "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";
+//const password = "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";
 
 const auth = {
     //Base64-encoded ASCII string from a binary string 
-  Authorization: "Basic " + btoa(`${owner}:${password}`),
+  //Authorization: "Basic " + btoa(`${owner}:${password}`),
+  Authorization: "Basic " + 'TWF4eHhuZWNoOmdocF82UTFVaEJKSlZPRU9MZjl4OWMxZXYzRG5ZWWRVb1IzRGY0R24='
 };
 
 export function loadIssues(cbk) {
@@ -24,7 +25,7 @@ export function loadIssues(cbk) {
   })
     .then((result) => result.json())
     .then((data) => {
-      console.log(`Got data from ${myUrl}`);
+      console.log(`Got data from ${myUrl} ${JSON.stringify(data)}`);
       //async
       cbk && cbk(data);
     });
