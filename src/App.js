@@ -1,40 +1,18 @@
-import React, { PureComponent, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+
+// *** Действия после перетаскивания**
+import { onDragEnd } from "./logic/dragAndDrop";
 
 // **Модуль для fetch-запросов**
 import { loadIssues, updateIssues } from "./components/requests";
+
+import { dataMapper } from "./logic/dataMapping";
 // **Содержимое каждой карточки**
 import CardContent from "./components/CardContent";
+
 import "./App.css";
-// a little function to help us with reordering the result
-// const reorder = (list, startIndex, endIndex) => {
-//   const result = Array.from(list);
-//   const [removed] = result.splice(startIndex, 1);
-//   result.splice(endIndex, 0, removed);
 
-//   return result;
-// };
-
-// const grid = 8;
-
-// const getItemStyle = (isDragging, draggableStyle) => ({
-//   // some basic styles to make the items look a bit nicer
-//   userSelect: "none",
-//   padding: grid * 2,
-//   margin: `0 0 ${grid}px 0`,
-
-//   // change background colour if dragging
-//   background: isDragging ? "lightgreen" : "grey",
-
-//   // styles we need to apply on draggables
-//   ...draggableStyle,
-// });
-
-// const getListStyle = (isDraggingOver) => ({
-//   background: isDraggingOver ? "lightblue" : "lightgrey",
-//   padding: grid,
-//   width: 250,
-// });
 
 // Заготовка для колонок
 const columnsFromBackend = {
@@ -47,48 +25,6 @@ const columnsFromBackend = {
     name: "Готовенько!",
     items: [],
   },
-};
-
-const onDragEnd = (result, columns, setColumns, cbk) => {
-  if (!result.destination) return;
-  const { source, destination } = result;
-
-  if (source.droppableId !== destination.droppableId) {
-    const sourceColumn = columns[source.droppableId];
-    const destColumn = columns[destination.droppableId];
-    const sourceItems = [...sourceColumn.items];
-    const destItems = [...destColumn.items];
-    const [removed] = sourceItems.splice(source.index, 1);
-    destItems.splice(destination.index, 0, removed);
-
-    //**Состояние issue будет соотвтетствовать droppableId колонки, в которую перенесли карточку*/
-    // result.draggableId - id issue в репозитории
-    cbk && cbk();
-
-    setColumns({
-      ...columns,
-      [source.droppableId]: {
-        ...sourceColumn,
-        items: sourceItems,
-      },
-      [destination.droppableId]: {
-        ...destColumn,
-        items: destItems,
-      },
-    });
-  } else {
-    const column = columns[source.droppableId];
-    const copiedItems = [...column.items];
-    const [removed] = copiedItems.splice(source.index, 1);
-    copiedItems.splice(destination.index, 0, removed);
-    setColumns({
-      ...columns,
-      [source.droppableId]: {
-        ...column,
-        items: copiedItems,
-      },
-    });
-  }
 };
 
 export default function App() {
@@ -106,34 +42,14 @@ export default function App() {
   useEffect(() => {
     // console.log(issues, columns)
     if (!issues.length) return;
-    let newColumns = { ...columns };
 
-    // Создаем элементы для каждого issue
-    const mappedIssues = issues.map((el) => ({
-      id: `${el.number}`,
-      state: el.state, // для упрощения фильтрации
-      content: (
-        <CardContent
-          title={el.title}
-          body={el.body}
-          state={el.state}
-          createdAt={el.created_at}
-        />
-      ),
-    }));
+    // **Распределяем по колонкам содержимое issues**
+    const newColumns = dataMapper(issues, columns);
 
-    // **Распределяем issue по колонкам Open / Close в зависимости от статуса выполнения**
-    for (let key in newColumns) {
-      let filtered = mappedIssues.filter(
-        (el) => el.state.toLowerCase() === key.toLowerCase()
-      );
-      newColumns[key].items = filtered;
-      console.log(key, filtered);
-    }
     console.log(issues);
     // Устанавиливаем состояние колонок
     setColumns(newColumns);
-  }, [issues]); // срабатывание только при изменении issues
+  }, [issues]); // срабатывание только при изменении issues / columns (?)
 
   return (
     <div className="App">
@@ -144,6 +60,7 @@ export default function App() {
         <a
           href="https://github.com/Maxxxnech/l10_t10_test_authorization/issues"
           target="_blank"
+          rel="noreferrer"
         >
           github.com/Maxxxnech/l10_t10_test_authorization/issues
         </a>
@@ -157,9 +74,11 @@ export default function App() {
               result,
               columns,
               setColumns,
+              //**************После перетаскивания - обновляем удаленный репозиторий ***/
               updateIssues(
                 result.destination.droppableId,
                 result.draggableId,
+                //***После обновления репозитория - подтягиваем данные в приложение*** */
                 () => loadIssues(setIssues)
               )
             )

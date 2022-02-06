@@ -3,7 +3,7 @@
    padding: 0;
 }
 
-.CardContent p.created{
+.CardContent p.dates{
   font-size: smaller;
   font-style: italic;
 }
@@ -14,5 +14,8 @@
 
 .CardContent.closed{
    color: lightgreen;
+   
+}
+.CardContent.closed .body, .CardContent.closed h3{
    text-decoration: line-through;
 }
