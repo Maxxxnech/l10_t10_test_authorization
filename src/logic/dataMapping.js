@@ -1,3 +1,4 @@
+import React from "react";
 // **Содержимое каждой карточки**
 import CardContent from "../components/CardContent";
 
