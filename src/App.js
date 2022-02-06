@@ -5,7 +5,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { onDragEnd } from "./logic/dragAndDrop";
 
 // **Модуль для fetch-запросов**
-import { loadIssues, updateIssues } from "./components/requests";
+import { loadIssues, updateIssues } from "./requests";
 
 import { dataMapper } from "./logic/dataMapping";
 // **Содержимое каждой карточки**
